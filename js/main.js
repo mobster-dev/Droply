@@ -4,7 +4,41 @@ class Droply {
         this.zIndex = 1
     }
 
-    async CreateDropdown(divId) {
+    async callbackFunction(objectOptions, args = []) {
+        return Object.keys(objectOptions).reduce((acc, key) => {
+            let option = objectOptions[key]
+            
+            if (typeof objectOptions[key] === 'string'){
+                option = { label: objectOptions[key] }
+            }else if (Array.isArray(objectOptions[key])){
+                option = {};
+                objectOptions[key].forEach((item, index) => {
+                    option[`key_${index}`] = item
+                })
+            }
+
+            console.log(" ")
+            console.log("Convertidoo")
+            console.log(option)
+            
+            let shouldInclude = true
+    
+            args.forEach((values, index) => {
+                const campo = Object.keys(option)[index+1]
+                if (option[campo] && !values.some(val => option[campo].includes(val))) {
+                    shouldInclude = false
+                }
+            })
+    
+            if (shouldInclude) {               
+                acc[key] = option[Object.keys(option)[0]]
+            }
+            return acc
+        }, {})
+    }
+
+    async CreateDropdown(divId, objectOptions) {
+
         const dropdown = document.getElementById(divId)
 
         let placeholder = dropdown.dataset.droplyPlaceholder
@@ -115,10 +149,7 @@ class Droply {
             }
         })
 
-
-        let callbackFunction = window[get_options_func]
-
-        const options = await callbackFunction()
+        const options = await this.callbackFunction(objectOptions)
         const keys = Object.keys(options)
 
         let selectedValues = isMultiselect ? keys : keys.length > 0 ? [keys[0]] : []
@@ -131,7 +162,7 @@ class Droply {
                                         </div>
                                     </div>`
 
-        this.filters[divId] = { placeholder, options, callbackFunction, isMultiselect, selectedValues, child }
+        this.filters[divId] = { placeholder, options, objectOptions, isMultiselect, selectedValues, child }
 
         this.renderItems(divId, dropdown)
 
@@ -245,10 +276,9 @@ class Droply {
                 const childParents = Object.fromEntries(
                     Object.entries(this.filters).filter(([key, value]) => Array.isArray(value.child) && value.child.includes(child))
                 )
-
                 const childParentsValues = Object.entries(childParents).map(([key, value]) => value.selectedValues)
 
-                this.filters[child].options = await this.filters[child].callbackFunction(childParentsValues)
+                this.filters[child].options = await this.callbackFunction(this.filters[child].objectOptions, childParentsValues)
                 this.filters[child].selectedValues = Object.keys(this.filters[child].options)
                 const dropdown = document.getElementById('dropdown-' + child)
                 this.renderItems(child, dropdown)
