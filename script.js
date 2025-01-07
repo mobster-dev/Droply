@@ -1,4 +1,9 @@
 document.addEventListener('DOMContentLoaded' , function(){
+
+    // Posso passar como lista, onde os valores serao gerados automaticamente a partir do 0
+    //const tipo = ["Carro", "Moto", "Caminhão", "Ônibus"] 
+
+    // Posso passar como objeto, onde os valores sao previamente definidos
     const tipo = {
         "0": "Carro",
         "1": "Moto",

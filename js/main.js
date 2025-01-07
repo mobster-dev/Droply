@@ -5,6 +5,15 @@ class Droply {
     }
 
     async callbackFunction(objectOptions, args = []) {
+        
+        if (Array.isArray(objectOptions)){
+            let tempObject = objectOptions
+            objectOptions = {}
+            tempObject.forEach((item, index) => {
+                objectOptions[index] = item
+            })
+        }
+        
         return Object.keys(objectOptions).reduce((acc, key) => {
             let option = objectOptions[key]
             
@@ -16,10 +25,6 @@ class Droply {
                     option[`key_${index}`] = item
                 })
             }
-
-            console.log(" ")
-            console.log("Convertidoo")
-            console.log(option)
             
             let shouldInclude = true
     
