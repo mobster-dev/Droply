@@ -1,0 +1,43 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/main.js"></script>
+    <script src="script.js"></script>
+    <title>Droply Teste</title>
+</head>
+<body style="background-color: black;">
+    <span>Glass Dark Theme</span>
+    <div
+        id="TipoEquipamentos"
+        class="theme-glass-dark"
+        style="width: 50%;"
+        data-droply-placeholder="Tipos de Equipamentos" 
+        data-droply-get-options-callback="getSysListaTiposAutomoveis"
+        data-droply-multiselect="true"
+        data-droply-child="Frotas, Equipamentos">
+    </div>
+    <br>
+    <span>Modern Dark Theme</span> 
+    <div
+        id="Frotas"
+        class="theme-modern-light"
+        style="width: 30%;"
+        data-droply-placeholder="Frotas" 
+        data-droply-get-options-callback="getSysListaMarcas"
+        data-droply-child="Equipamentos">
+    </div>
+    <br>
+    <span>Galaxy Theme</span> 
+    <div
+        id="Equipamentos"
+        class="theme-galaxy"
+        style="width: 30%;"
+        data-droply-placeholder="Equipamentos" 
+        data-droply-get-options-callback="getSysListaModelos">
+    </div>
+    <br>
+    <div id="teste">Callback</div>
+</body>
+</html>
