@@ -43,7 +43,9 @@ class Droply {
     }
 
     /**
-     * Creates a single or multi-select dropdown inside a specified div.
+     * **Droply** CreateDropdown function
+     * 
+     * Creates a single or multiple selection dropdown within a specified div, with or without filter dependencies.
      * @param {string} divId - The ID of the div where the dropdown will be created.
      * @param {string[] | Object<string, string> | Object<string, [string, string[]]> | Object<string, {label: string, type?: string[], brand?: string[]}>} objectOptions - 
      *     Dropdown options. Accepts the following formats:
