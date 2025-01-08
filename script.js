@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded' , function(){
         "2": { label: "Ranger", tipo: ["2"],  marca: ["2"]},
         "3": { label: "S10", tipo: ["2"], marca: ["3"]},
         "4": { label: "X5", tipo: ["0"], marca: ["4"]},
-        "4": { label: "XJ", tipo: ["1"], marca: ["1"]}, 
+        "4": { label: "Biz", tipo: ["1"], marca: ["1"]}, 
     }
 
     const droply = new Droply();

@@ -42,6 +42,41 @@ class Droply {
         }, {})
     }
 
+    /**
+     * Creates a single or multi-select dropdown inside a specified div.
+     * @param {string} divId - The ID of the div where the dropdown will be created.
+     * @param {string[] | Object<string, string> | Object<string, [string, string[]]> | Object<string, {label: string, type?: string[], brand?: string[]}>} objectOptions - 
+     *     Dropdown options. Accepts the following formats:
+     *     - **Simple Array**: An array of strings (e.g., `["Car", "Motorcycle"]`). The labels will be used as dropdown options, and their values will be auto-generated sequentially (e.g., "Car" will have the value `0`, "Motorcycle" will have the value `1`).
+     *     - **Simple Object**: An object where the keys are strings and the values are strings (e.g., `{ "0": "Car", "1": "Motorcycle" }`). This allows you to explicitly define both the labels and their corresponding values.
+     *     - **Detailed Object**: An object where the keys are strings, and the values are objects with a `label` property, along with optional properties like `type` and `brand` for dependency-based filtering. 
+     *     
+     *     For example:
+     *       ```javascript
+     *       {
+     *         "0": { label: "Corolla", type: ["0"], brand: ["0"] },
+     *         "1": { label: "Biz", type: ["1"], brand: ["1"] }
+     *       }
+     *       ```
+     *     - **Array-Enhanced Object**: An object where the keys are strings, and the values are arrays containing a label string and additional arrays for filtering dependencies. 
+     *     
+     *     For example:
+     *       ```javascript
+     *       {
+     *         "0": ["Corolla", ["0"], ["0"]],
+     *         "1": ["Biz", ["1"], ["1"]]
+     *       }
+     *       ```
+     * 
+     * **Usage Notes**:
+     * - **Simple Arrays**: Use these when you only need dropdown labels, and values can be automatically assigned.
+     * - **Simple Objects**: Use these when you need to explicitly define both labels and values for each dropdown option.
+     * - **Detailed or Array-Enhanced Objects**: Use these when the dropdown has parent-child dependencies (e.g., filtering by `type` and `brand`). In this case, the additional properties or arrays will determine filtering rules.
+     * 
+     * For more details on how to use dependency-based filtering, refer to the documentation.
+     * 
+     * @returns {Promise<any>} A Promise that resolves once the dropdown is created.
+     */
     async CreateDropdown(divId, objectOptions) {
 
         const dropdown = document.getElementById(divId)
