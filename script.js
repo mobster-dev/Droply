@@ -1,3 +1,7 @@
+function teste(key, label, selectedValues){
+    console.log(key, label, selectedValues)
+}
+
 document.addEventListener('DOMContentLoaded' , function(){
 
     // Posso passar como lista, onde os valores serao gerados automaticamente a partir do 0
@@ -25,14 +29,14 @@ document.addEventListener('DOMContentLoaded' , function(){
         "2": { label: "Ranger", tipo: ["2"],  marca: ["2"]},
         "3": { label: "S10", tipo: ["2"], marca: ["3"]},
         "4": { label: "X5", tipo: ["0"], marca: ["4"]},
-        "4": { label: "Biz", tipo: ["1"], marca: ["1"]}, 
+        "5": { label: "Biz", tipo: ["1"], marca: ["1"]}, 
     }
 
-    const droply = new Droply();
-    droply.CreateDropdown('TipoEquipamentos', tipo)
+    const droply = new Droply()
+    droply.CreateDropdown('TipoEquipamentos', tipo, undefined, teste)
     droply.CreateDropdown('Frotas', marca)
     droply.CreateDropdown('Equipamentos', automovel)
-
+    
     document.getElementById('teste').addEventListener('click', () => {
         console.log(droply.getNamedValues('Equipamentos'))
     })

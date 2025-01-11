@@ -22,23 +22,44 @@ class Droply {
             }else if (Array.isArray(objectOptions[key])){
                 option = {};
                 objectOptions[key].forEach((item, index) => {
-                    option[`key_${index}`] = item
+                    if (index === 0) {
+                        option['label'] = item
+                    }else {
+                        option[`key_${index}`] = item
+                    }
+                    
                 })
             }
-            
             let shouldInclude = true
-    
-            args.forEach((values, index) => {
-                const campo = Object.keys(option)[index+1]
-                if (option[campo] && !values.some(val => option[campo].includes(val))) {
-                    shouldInclude = false
+            
+            if (Object.keys(option).length > 1) {
+                
+                args.forEach((values, index) => {
+                    const campo = Object.keys(option)[index+1]
+                    if (option[campo] && !values.some(val => option[campo].includes(val))) {
+                        shouldInclude = false
+                    }
+                })
+                
+                if (shouldInclude) {               
+                    acc[key] = option[Object.keys(option)[0]]
                 }
-            })
-    
-            if (shouldInclude) {               
-                acc[key] = option[Object.keys(option)[0]]
+                return acc
+            } else {
+                
+                args.forEach((values, index) => {
+                    const campo = Object.keys(option)[0]
+                    if (option[campo] && !values.some(val => option[campo].includes(objectOptions[val]))) {
+                        shouldInclude = false
+                        
+                    }
+                })
+                
+                if (shouldInclude) {               
+                    acc[key] = option[Object.keys(option)[0]]
+                }
+                return acc
             }
-            return acc
         }, {})
     }
 
@@ -56,7 +77,7 @@ class Droply {
      *     For example:
      *       ```javascript
      *       {
-     *         "0": { label: "Corolla", type: ["0"], brand: ["0"] },
+     *         "0": { label: "Corolla", type: ["0"], brand: ["2"] },
      *         "1": { label: "Biz", type: ["1"], brand: ["1"] }
      *       }
      *       ```
@@ -65,7 +86,7 @@ class Droply {
      *     For example:
      *       ```javascript
      *       {
-     *         "0": ["Corolla", ["0"], ["0"]],
+     *         "0": ["Corolla", ["0"], ["2"]],
      *         "1": ["Biz", ["1"], ["1"]]
      *       }
      *       ```
@@ -76,10 +97,27 @@ class Droply {
      * - **Detailed or Array-Enhanced Objects**: Use these when the dropdown has parent-child dependencies (e.g., filtering by `type` and `brand`). In this case, the additional properties or arrays will determine filtering rules.
      * 
      * For more details on how to use dependency-based filtering, refer to the documentation.
+     * @param {string[] | Array<string[]>} filteredOptions - 
+     *     An optional parameter used to filter dropdown options. (This only works for dropdowns without parent elements. Dropdowns with children are supported, but they cannot have parent elements.)
+     *     - **Simple Array**: An array of strings (e.g., `["0", "1"]`). Use this format when `objectOptions` is a simple array, a simple object, an array-enhanced object, or a verbose object with a single filter key.
+     *     - **Array of Arrays**: An array of Arrays (e.g., `[["0"], ["1"]]`). Use this format when `objectOptions` is a detailed object or an array-enhanced object with multiple filter keys.
      * 
+     * @param {function} OnItemClickCallback - An optional parameter that calls the passed function when an item is clicked. Three parameters are passed to the callback, "key", "label" and "SelectedValues".
+     *      For example:
+     *         ```javascript
+     *         function callback(key, label, selectedValues) {
+     *          console.log(key, label, selectedValues)
+     *          // Result:
+     *          // key: "0"
+     *          // label: "test"
+     *          // selectedValues: ["0"]
+     *         }
+     *         const droply = new Droply()
+     *         droply.CreateDropdown('Filter', {"0": "test"}, undefined, callback)
+     *         ```
      * @returns {Promise<any>} A Promise that resolves once the dropdown is created.
      */
-    async CreateDropdown(divId, objectOptions) {
+    async CreateDropdown(divId, objectOptions, filteredOptions=[], OnItemClickCallback=null) {
 
         const dropdown = document.getElementById(divId)
 
@@ -190,8 +228,13 @@ class Droply {
                 container.classList.remove("show")
             }
         })
+        
+        if (!filteredOptions.every(element => Array.isArray(element))) {
+            filteredOptions = [filteredOptions]
+        }
+        
 
-        const options = await this.callbackFunction(objectOptions)
+        const options = await this.callbackFunction(objectOptions, filteredOptions)
         const keys = Object.keys(options)
 
         let selectedValues = isMultiselect ? keys : keys.length > 0 ? [keys[0]] : []
@@ -204,7 +247,7 @@ class Droply {
                                         </div>
                                     </div>`
 
-        this.filters[divId] = { placeholder, options, objectOptions, isMultiselect, selectedValues, child }
+        this.filters[divId] = { placeholder, options, objectOptions, isMultiselect, selectedValues, child, OnItemClickCallback}
 
         this.renderItems(divId, dropdown)
 
@@ -299,6 +342,10 @@ class Droply {
                                                 </div>`
 
                     this.updateChild(this.filters[divId])
+
+                    if (this.filters[divId].OnItemClickCallback) {
+                        this.filters[divId].OnItemClickCallback(key, label, this.filters[divId].selectedValues);
+                    }
                 })
 
                 dropdownMenu.appendChild(item)
