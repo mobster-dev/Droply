@@ -20,7 +20,7 @@ class Droply {
             if (typeof objectOptions[key] === 'string'){
                 option = { label: objectOptions[key] }
             }else if (Array.isArray(objectOptions[key])){
-                option = {};
+                option = {}
                 objectOptions[key].forEach((item, index) => {
                     if (index === 0) {
                         option['label'] = item
@@ -64,68 +64,87 @@ class Droply {
     }
 
     /**
-     * **Droply** CreateDropdown function
-     * 
-     * Creates a single or multiple selection dropdown within a specified div, with or without filter dependencies.
-     * @param {string} divId - The ID of the div where the dropdown will be created.
-     * @param {string[] | Object<string, string> | Object<string, [string, string[]]> | Object<string, {label: string, type?: string[], brand?: string[]}>} objectOptions - 
-     *     Dropdown options. Accepts the following formats:
-     *     - **Simple Array**: An array of strings (e.g., `["Car", "Motorcycle"]`). The labels will be used as dropdown options, and their values will be auto-generated sequentially (e.g., "Car" will have the value `0`, "Motorcycle" will have the value `1`).
-     *     - **Simple Object**: An object where the keys are strings and the values are strings (e.g., `{ "0": "Car", "1": "Motorcycle" }`). This allows you to explicitly define both the labels and their corresponding values.
-     *     - **Detailed Object**: An object where the keys are strings, and the values are objects with a `label` property, along with optional properties like `type` and `brand` for dependency-based filtering. 
-     *     
-     *     For example:
-     *       ```javascript
-     *       {
-     *         "0": { label: "Corolla", type: ["0"], brand: ["2"] },
-     *         "1": { label: "Biz", type: ["1"], brand: ["1"] }
-     *       }
-     *       ```
-     *     - **Array-Enhanced Object**: An object where the keys are strings, and the values are arrays containing a label string and additional arrays for filtering dependencies. 
-     *     
-     *     For example:
-     *       ```javascript
-     *       {
-     *         "0": ["Corolla", ["0"], ["2"]],
-     *         "1": ["Biz", ["1"], ["1"]]
-     *       }
-     *       ```
-     * 
-     * **Usage Notes**:
-     * - **Simple Arrays**: Use these when you only need dropdown labels, and values can be automatically assigned.
-     * - **Simple Objects**: Use these when you need to explicitly define both labels and values for each dropdown option.
-     * - **Detailed or Array-Enhanced Objects**: Use these when the dropdown has parent-child dependencies (e.g., filtering by `type` and `brand`). In this case, the additional properties or arrays will determine filtering rules.
-     * 
-     * For more details on how to use dependency-based filtering, refer to the documentation.
-     * @param {string[] | Array<string[]>} filteredOptions - 
-     *     An optional parameter used to filter dropdown options. (This only works for dropdowns without parent elements. Dropdowns with children are supported, but they cannot have parent elements.)
-     *     - **Simple Array**: An array of strings (e.g., `["0", "1"]`). Use this format when `objectOptions` is a simple array, a simple object, an array-enhanced object, or a verbose object with a single filter key.
-     *     - **Array of Arrays**: An array of Arrays (e.g., `[["0"], ["1"]]`). Use this format when `objectOptions` is a detailed object or an array-enhanced object with multiple filter keys.
-     * 
-     * @param {function} OnItemClickCallback - An optional parameter that calls the passed function when an item is clicked. Three parameters are passed to the callback, "key", "label" and "SelectedValues".
-     *      For example:
-     *         ```javascript
-     *         function callback(key, label, selectedValues) {
-     *          console.log(key, label, selectedValues)
-     *          // Result:
-     *          // key: "0"
-     *          // label: "test"
-     *          // selectedValues: ["0"]
-     *         }
-     *         const droply = new Droply()
-     *         droply.CreateDropdown('Filter', {"0": "test"}, undefined, callback)
-     *         ```
-     * @returns {Promise<any>} A Promise that resolves once the dropdown is created.
+     * Creates a dropdown with single or multiple selection, supporting filter dependencies.
+     * @param {Object} droplyObject - Configuration object.
+     * @param {string} droplyObject.elementId - The ID of the element (div or select) where the dropdown will be created.
+     * @param {string[] | Object<string, string> | Object<string, [string, string[]]> | Object<string, {label: string, level1?: string[], levelN?: string[]}>} [droplyObject.objectOptions] -
+     *     Dropdown options. Supported formats:
+     *     - Array of strings: e.g. ["Car", "Motorcycle"]
+     *     - Object of key:label pairs: e.g. { "0": "Car", "1": "Motorcycle" }
+     *     - Object of key:object with label and optional filter keys: e.g. { "0": { label: "Corolla", type: ["0"], brand: ["2"] } }
+     *     - Object of key:array: e.g. { "0": ["Corolla", ["0"], ["2"]] }
+     * @param {string[] | Array<string[]>} [droplyObject.filteredOptions] -
+     *     Optional filter values. Use array of strings for single filter, or array of arrays for multiple filters.
+     * @param {function} [droplyObject.OnItemClickCallback] -
+     *     Optional callback called when an item is clicked: (key, label, selectedValues) => void
+     * @returns {Promise<any>} Resolves when the dropdown is created.
      */
-    async CreateDropdown(divId, objectOptions, filteredOptions=[], OnItemClickCallback=null) {
+    async CreateDropdown(droplyObject) {
+        
+        if (droplyObject === undefined){
+            console.error("Droply: The parameter 'droplyObject' is required.")
+            return
+        }else if (droplyObject.elementId === undefined){
+            console.error("Droply: The parameters 'elementId' not defined in the 'droplyObject'.")
+            return
+        }
 
-        const dropdown = document.getElementById(divId)
+        let divId = droplyObject.elementId
+        let objectOptions = droplyObject.objectOptions || undefined
+        let filteredOptions = droplyObject.filteredOptions || []
+        let OnItemClickCallback = droplyObject.OnItemClickCallback || null
 
-        let placeholder = dropdown.dataset.droplyPlaceholder
-        let get_options_func = dropdown.dataset.droplyGetOptionsCallback
+        let dropdown = document.getElementById(divId)
+
+        if (dropdown === null) {
+            console.error(`Droply: The element with ID '${divId}' does not exist.`)
+            return
+        }
+
+        if (dropdown.tagName === 'SELECT'){
+            const wrapper = document.createElement('div');
+            [...dropdown.attributes].forEach(attr => {
+                wrapper.setAttribute(attr.name, attr.value)
+            })
+            dropdown.style.display = 'none'
+            dropdown.parentNode.insertBefore(wrapper, dropdown.nextSibling)
+
+            if ((objectOptions === undefined || Object.keys(objectOptions).length === 0)) {
+                if (dropdown.options.length > 0) {
+                    objectOptions = {}
+                    Array.from(dropdown.options).forEach((opt, index) => {
+                        let optAttributes = opt.attributes
+                        let optObject = {}
+                        for (let i = 0; i < optAttributes.length; i++) {
+                            optObject['label'] = opt.textContent
+                            if (optAttributes[i].name.startsWith('data-droply')) {
+                                optObject[optAttributes[i].name] = optAttributes[i].value.split(',').map(item => item.trim())
+                            }
+                        }
+                        objectOptions[opt.value] = optObject
+                    })
+                }else {
+                    console.error("Droply: The parameter 'objectOptions' is required when the dropdown is a select element and no options are defined.")
+                    return
+                }
+            }else {
+                dropdown.innerHTML = ''
+                for (const [key, value] of Object.entries(objectOptions)) {
+                    const option = document.createElement('option')
+                    option.value = key
+                    option.textContent = value instanceof Array ? value[0] : value instanceof Object ? value.label : value
+                    dropdown.appendChild(option)
+                }
+            }
+            
+            dropdown = wrapper
+            
+        }
+
+        let placeholder = dropdown.dataset.droplyPlaceholder || divId
         let child = dropdown.dataset.droplyChild?.split(',').map(item => item.trim()) || null
 
-        let isMultiselect = dropdown.dataset.droplyMultiselect ? dropdown.dataset.droplyMultiselect === "true" : true
+        let isMultiselect = dropdown.attributes.multiple ? true : false
 
         dropdown.id = 'dropdown-' + divId
         dropdown.style.display = 'block'
@@ -217,6 +236,7 @@ class Droply {
                                                 <span class="dropdown-arrow">v</span>
                                             </div>
                                         </div>`
+            this.setOptionsOnSelect(divId, true)
         }
 
         selectAllButton.addEventListener("click", toggleSelectAll)
@@ -259,6 +279,8 @@ class Droply {
             
         })
 
+        this.setOptionsOnSelect(divId)
+
         return divId
     }
 
@@ -272,7 +294,7 @@ class Droply {
         )
 
         if (!this.filters[divId].isMultiselect) {
-            selectAllButton.remove()
+            selectAllButton.style.display = 'none'
         }
 
         const sortedOptions = Object.entries(this.filters[divId].options).sort((a, b) => {
@@ -344,8 +366,10 @@ class Droply {
                     this.updateChild(this.filters[divId])
 
                     if (this.filters[divId].OnItemClickCallback) {
-                        this.filters[divId].OnItemClickCallback(key, label, this.filters[divId].selectedValues);
+                        this.filters[divId].OnItemClickCallback(key, label, this.filters[divId].selectedValues)
                     }
+
+                    this.setOptionsOnSelect(divId, true)
                 })
 
                 dropdownMenu.appendChild(item)
@@ -368,7 +392,7 @@ class Droply {
                 const childParentsValues = Object.entries(childParents).map(([key, value]) => value.selectedValues)
 
                 this.filters[child].options = await this.callbackFunction(this.filters[child].objectOptions, childParentsValues)
-                this.filters[child].selectedValues = Object.keys(this.filters[child].options)
+                this.filters[child].selectedValues = this.filters[child].isMultiselect ? Object.keys(this.filters[child].options) : Object.keys(this.filters[child].options).length > 0 ? [Object.keys(this.filters[child].options)[0]] : []
                 const dropdown = document.getElementById('dropdown-' + child)
                 this.renderItems(child, dropdown)
             }
@@ -391,5 +415,22 @@ class Droply {
 
     getCountedItens(divId) {
         return this.filters[divId]?.selectedValues.length || 0
+    }
+
+    setOptionsOnSelect(divId, onClickEvent = false) {
+        const selectElement = document.getElementById(divId)
+        if (selectElement && selectElement.tagName === 'SELECT') {
+            const options = Array.from(selectElement.options)
+            if (this.filters[divId].isMultiselect) {
+                options.forEach(opt => {
+                    opt.selected = this.filters[divId].selectedValues.includes(opt.value)
+                })
+            } else {
+                selectElement.value = this.filters[divId].selectedValues[0] || ''
+            }
+        }
+        if (onClickEvent) {
+            selectElement.dispatchEvent(new Event('change'))
+        }
     }
 }

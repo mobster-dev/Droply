@@ -2,37 +2,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mobster-dev/Droply@v1.0.0/css/style.css">
-    <script src="https://cdn.jsdelivr.net/gh/mobster-dev/Droply@v1.0.0/js/main.js"></script>
+    <!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mobster-dev/Droply@v1.0.0/css/style.css">
+    <script src="https://cdn.jsdelivr.net/gh/mobster-dev/Droply@v1.0.0/js/main.js"></script>-->
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/main.js"></script>
     <script src="example_script.js"></script>
     <title>Droply Teste</title>
+    <style>
+        .custom-theme-green {
+            --droply-background: linear-gradient(135deg, rgb(57, 131, 35),  rgb(35, 182, 35), rgb(12, 236, 31));
+            --droply-foreground: rgb(49, 49, 49);
+            --droply-selected-color: rgba(205, 205, 205, 0.280);
+            --droply-outline: rgba(100, 100, 100, 0.495);
+            --droply-hover-selected-border: rgb(100, 100, 100);
+            --droply-item-hover: rgba(221, 221, 221, 0.570);
+            --droply-scrollbar-thumb: rgb(219, 219, 219);
+            --droply-scrollbar-track: rgba(0, 0, 0, 0);
+            --droply-backdrop: none;
+            --droply-shadow: 0px 1px 10px 0px rgba(0, 0, 0, 0.470);
+        }
+    </style>
 </head>
-<body style="background-color: black;">
-    <span>Glass Dark Theme</span>
-    <div
-        id="Type"
-        class="theme-glass-dark"
-        style="width: 50%;"
-        data-droply-placeholder="Types" 
-        data-droply-multiselect="false"
-        data-droply-child="Brand, Equipment">
-    </div>
+<body style="background-color: rgba(34, 34, 34, 0.87);">
+    <span style="color: white;">Using Divs</span>
     <br>
-    <span>Modern Dark Theme</span> 
-    <div
-        id="Brand"
-        class="theme-modern-light"
-        style="width: 30%;"
-        data-droply-placeholder="Brands" 
-        data-droply-child="Equipment">
-    </div>
     <br>
-    <span>Galaxy Theme</span> 
-    <div
-        id="Equipment"
-        class="theme-galaxy"
-        style="width: 30%;"
-        data-droply-placeholder="Equipments">
+    <div style="display: flex; flex-direction: row; gap: 5px; justify-content: space-between;">
+        <div style="width: 100%;">
+            <span style="color: white;">Glass Dark Theme</span>
+            <div
+                id="Type"
+                class="theme-glass-Dark theme-on-dark"
+                data-droply-placeholder="Types" 
+                multiple
+                data-droply-child="Brand, Equipment">
+            </div>
+        </div>
+        <div style="width: 100%;">
+            <span style="color: white;">Glass Light Theme</span> 
+            <div
+                id="Brand"
+                data-droply-placeholder="Brands"
+                class="theme-glass-Light theme-on-dark"
+                data-droply-child="Equipment">
+            </div>
+        </div>
+        <div style="width: 100%;">
+            <span style="color: white;">Galaxy Theme</span> 
+            <div
+                id="Equipment"
+                class="theme-galaxy"
+                data-droply-placeholder="Equipments">
+            </div>
+        </div>
+    </div>
+    
+    <br>
+    <br>
+    <span style="color: white;">Using select</span> 
+    <br>
+    <br>
+    <div style="display: flex; flex-direction: row; gap: 5px; justify-content: space-between;">
+        <div style="width: 100%;">
+            <span style="color: white;">Modern Light Theme</span> 
+            <select id="type2" class="theme-modern-light" data-droply-child="Equipment2">
+                <option value="0">Toyota</option>
+                <option value="1">Honda</option>
+                <option value="2">Ford</option>
+                <option value="3">Chevrolet</option>
+                <option value="3">BMW</option>
+            </select>
+        </div>
+        <div style="width: 100%;">
+            <span style="color: white;">Theme Modern Dark</span> 
+            <select id="Brand2" class="theme-modern-dark" data-droply-child="Equipment2">
+                <option value="0" data-droply-level1="0">Toyota</option>
+                <option value="1" data-droply-level1="0,1">Honda</option>
+                <option value="2" data-droply-level1="0,2">Ford</option>
+                <option value="3" data-droply-level1="0,2">Chevrolet</option>
+                <option value="3" data-droply-level1="0">BMW</option>
+            </select>
+        </div>
+        <div style="width: 100%;">
+            <span style="color: white;">Theme Default</span>
+            <select id="Equipment2" multiple>
+                <option value="0" data-droply-level1="0" data-droply-level2="0">Toyota</option>
+                <option value="1" data-droply-level1="0,1" data-droply-level2="1">Honda</option>
+                <option value="2" data-droply-level1="0,2" data-droply-level2="0">Ford</option>
+                <option value="3" data-droply-level1="0,2" data-droply-level2="0">Chevrolet</option>
+                <option value="3" data-droply-level1="0" data-droply-level2="0">BMW</option>
+            </select> 
+        </div>
     </div>
 </body>
 </html>

@@ -1,6 +1,3 @@
-function teste(key, label, selectedValues){
-    console.log(key, label, selectedValues)
-}
 
 document.addEventListener('DOMContentLoaded' , function(){
 
@@ -14,7 +11,7 @@ document.addEventListener('DOMContentLoaded' , function(){
         "2": "Truck",
         "3": "Bus",
     }
-    
+            
     const brand = {
         "0": ["Toyota", ["0"]],
         "1": ["Honda", ["0", "1"] ],
@@ -33,9 +30,39 @@ document.addEventListener('DOMContentLoaded' , function(){
     }
 
     const droply = new Droply()
-    droply.CreateDropdown('Type', type, undefined, teste)
-    droply.CreateDropdown('Brand', brand)
-    droply.CreateDropdown('Equipment', automobile)
+    droply.CreateDropdown({
+        elementId:'Type', 
+        objectOptions:type,
+        OnItemClickCallback:teste
+    })
+    droply.CreateDropdown({
+        elementId:'Brand', 
+        objectOptions:brand
+    })
+    droply.CreateDropdown({
+        elementId:'Equipment', 
+        objectOptions:automobile
+    })
 
+    const droply2 = new Droply()
+        droply2.CreateDropdown({
+        elementId:'type2', 
+        objectOptions:type
+    })
+    droply2.CreateDropdown({
+        elementId:'Brand2', 
+        objectOptions:type
+    })
+
+    droply2.CreateDropdown({
+        elementId:'Equipment2'
+    })
+
+    document.getElementById('Brand2').addEventListener('change', function () {
+        console.log('Selecionado:', this.selectedOptions )
+    })
 })
 
+function teste(key, label, selectedValues){
+    console.log(key, label, selectedValues)
+}
